@@ -14,9 +14,13 @@ struct PersistenceController {
     static let preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
-        for _ in 0..<10 {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
+        for i in 0..<10 {
+            let newEvent = EventItem(context: viewContext)
+            newEvent.id = UUID()
+            newEvent.title = "Sample Event \(i)"
+            newEvent.eventDate = Date().addingTimeInterval(Double(i) * 3600) // Each event an hour apart
+            newEvent.details = "Details for event \(i)"
+            
         }
         do {
             try viewContext.save()
