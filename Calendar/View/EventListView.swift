@@ -47,9 +47,7 @@ struct EventListView: View {
                 }
                 .listStyle(PlainListStyle())
             }
-
-            Spacer()
-
+            
             Button { showingAddSheet = true } label: {
                 HStack {
                     Image(systemName: "plus.circle.fill")
@@ -57,6 +55,7 @@ struct EventListView: View {
                 }
             }
             .padding()
+            Spacer()
         }
         .sheet(isPresented: $showingAddSheet) {
             AddEventView(day: day)
@@ -108,9 +107,15 @@ struct EventListView: View {
                     .font(.headline)
                 Text(event.details ?? "")
                     .font(.subheadline)
-                if let dt = event.eventDate {
-                    Text(timeString(for: dt))
-                        .font(.caption)
+                HStack {
+                    if let start = event.eventDate {
+                        Text("Starts: \(timeString(for: start))")
+                            .font(.caption)
+                    }
+                    if let end = event.endTime {
+                        Text("Ends: \(timeString(for: end))")
+                            .font(.caption)
+                    }
                 }
             }
             Spacer()

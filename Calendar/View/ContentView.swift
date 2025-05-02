@@ -95,7 +95,7 @@ struct ContentView: View {
             }
             
             .navigationDestination(for: Date.self) { date in
-                DayEventsView(day: date)
+                DayView(day: date)
             }
             .sheet(isPresented: $showMonthPicker) {
                 MonthYearPickerView(selectedDate: $displayedDate, isPresented: $showMonthPicker)

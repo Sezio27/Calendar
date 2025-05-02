@@ -17,6 +17,7 @@ struct EventTitleBox: View {
             .background(
                 RoundedRectangle(cornerRadius: 5)
                     .fill(event.eventColor.swiftUIColor)
+                    .opacity(event.hasFinished() ? 0.7 : 1)
             )
             .foregroundColor(.white)
             .lineLimit(1)

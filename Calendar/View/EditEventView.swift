@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EditEventView: View {
-    let event: EventItem
+    @ObservedObject var event: EventItem
     /// The exact day cell the user tapped
     let occurrenceDate: Date
     
@@ -21,6 +21,20 @@ struct EditEventView: View {
     @State private var chosenColor          = EventColor.green
     @State private var chosenRecurrence     = RepeatFrequency.none
     @State private var notificationsEnabled = true
+    @State private var endTime          : Date?
+    
+    init(event: EventItem, occurrenceDate: Date) {
+            self._event            = ObservedObject(initialValue: event)
+            self.occurrenceDate    = occurrenceDate
+
+            _eventTitle            = State(initialValue: event.title ?? "")
+            _eventDetails          = State(initialValue: event.details ?? "")
+            _eventTime             = State(initialValue: event.eventDate ?? Date())
+            _endTime               = State(initialValue: event.endTime)
+            _chosenColor           = State(initialValue: event.eventColor)
+            _chosenRecurrence      = State(initialValue: event.recurrence)
+        _notificationsEnabled       = State(initialValue: event.notificationsEnabled)
+        }
     
     /// Only show the “split vs series” prompt if this is a true future occurrence of a repeating event.
     private var shouldOfferSplit: Bool {
@@ -41,6 +55,7 @@ struct EditEventView: View {
                     eventTitle:           $eventTitle,
                     eventDetails:         $eventDetails,
                     eventTime:            $eventTime,
+                    endTime:              $endTime,
                     chosenColor:          $chosenColor,
                     chosenRecurrence:     $chosenRecurrence,
                     notificationsEnabled: $notificationsEnabled,
@@ -136,6 +151,7 @@ struct EditEventView: View {
             event:                event,
             title:                eventTitle.isEmpty ? "Untitled Event" : eventTitle,
             date:                 combined,
+            endTime:              endTime,
             details:              eventDetails,
             color:                chosenColor,
             recurrence:           chosenRecurrence,
@@ -154,7 +170,8 @@ struct EditEventView: View {
             notificationsEnabled:   notificationsEnabled,
             newTitle:               eventTitle.isEmpty ? "Untitled Event" : eventTitle,
             newDetails:             eventDetails,
-            newColor:               chosenColor
+            newColor:               chosenColor,
+            newEndTime:             endTime
         )
         dismiss()
     }

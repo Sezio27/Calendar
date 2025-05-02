@@ -20,6 +20,18 @@ struct CalendarApp: App {
                     EventViewModel(context: persistenceController.container.viewContext,
                                    notifications: notificationManager)
                 )
+                .task {
+                    await prepareHolidayCache()
+                }
+            
         }
+    }
+    private func prepareHolidayCache() async {
+        let cal  = Calendar.current
+        let now  = Date()
+        let y0   = cal.component(.year, from:  now)
+        let y1   = y0 + 1                         // pre-warm next year too
+        await HolidayService.shared.preload(year: y0)
+        await HolidayService.shared.preload(year: y1)
     }
 }

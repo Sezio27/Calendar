@@ -18,6 +18,7 @@ struct AddEventView: View {
     @State private var chosenColor: EventColor = .green
     @State private var chosenRecurrence: RepeatFrequency = .none
     @State private var notificationsEnabled = true
+    @State private var endTime: Date?  = nil
     
     var body: some View {
         NavigationStack {
@@ -25,6 +26,7 @@ struct AddEventView: View {
                 EventFormView(eventTitle: $eventTitle,
                               eventDetails: $eventDetails,
                               eventTime: $eventTime,
+                              endTime: $endTime,
                               chosenColor: $chosenColor,
                               chosenRecurrence: $chosenRecurrence,
                               notificationsEnabled: $notificationsEnabled,
@@ -44,6 +46,7 @@ struct AddEventView: View {
                         eventViewModel.addEvent(
                             title: eventTitle.isEmpty ? "Untitled Event" : eventTitle,
                             date: combinedDate,
+                            endTime: endTime,
                             details: eventDetails,
                             color: chosenColor,
                             recurrence: chosenRecurrence,
