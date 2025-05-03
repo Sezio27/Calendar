@@ -16,15 +16,11 @@ struct DayView: View {
             DayInformationView(date: day)
             EventListView(day: day)
         }
-        .navigationTitle("\(day, formatter: dayFormatter)")
+        .navigationTitle("\(day.formatted(date: .long, time: .omitted))")
         .task {
             dayInfo = await DayInfoService.shared.info(for: day)
         }
     }
 }
 
-private let dayFormatter: DateFormatter = {
-    let f = DateFormatter()
-    f.dateStyle = .long
-    return f
-}()
+

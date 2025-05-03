@@ -6,8 +6,9 @@
 //
 import SwiftUI
 
-struct EventTitleBox: View {
+struct EventBoxView: View {
     @ObservedObject var event: EventItem
+    let occurrenceDate: Date
     
     var body: some View {
         Text(event.title ?? "Untitled")
@@ -17,7 +18,7 @@ struct EventTitleBox: View {
             .background(
                 RoundedRectangle(cornerRadius: 5)
                     .fill(event.eventColor.swiftUIColor)
-                    .opacity(event.hasFinished() ? 0.7 : 1)
+                    .opacity(event.hasFinished(on: occurrenceDate) ? 0.7 : 1)
             )
             .foregroundColor(.white)
             .lineLimit(1)

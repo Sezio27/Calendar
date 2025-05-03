@@ -11,13 +11,9 @@
 import SwiftUI
 
 struct DayInformationView: View {
-    
-    /// Calendar day we’re showing (today, past, or future)
     let date: Date
-    /// Which calendar to compare with when fetching holidays
     var calendar: Calendar = .current
 
-    // Core-Data sources
     @EnvironmentObject private var eventViewModel: EventViewModel
     @State            private var dayInfo: DayInfoItem? = nil
 
@@ -30,7 +26,6 @@ struct DayInformationView: View {
             Divider()
                 .padding(.horizontal)
             VStack(spacing: 6) {
-                // ── Weather block ────────────────────────────────
                 Group {
                     if let info = dayInfo {
                         WeatherBlockView(info: info)

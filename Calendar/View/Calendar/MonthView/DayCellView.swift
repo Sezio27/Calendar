@@ -23,14 +23,6 @@ struct DayCellView: View {
         eventViewModel.eventsForDay(date, using: calendar)
     }
     
-    func softHyphenated(_ text: String, breakAfter firstN: Int = 8) -> String {
-        guard text.count > firstN else { return text }
-
-        var chars = Array(text)
-        chars.insert("\u{00AD}", at: min(firstN, chars.count - 3))
-        return String(chars)
-    }
-    
     var body: some View {
         
         VStack(alignment: .leading, spacing: 3) {
@@ -44,11 +36,11 @@ struct DayCellView: View {
                         if events.count <= 2 {
                             // 1 or 2 events: show each
                             ForEach(events, id: \.self) { event in
-                                EventTitleBox(event: event)
+                                EventBoxView(event: event, occurrenceDate: date)
                             }
                         } else {
                             // 3+ events: show first + badge
-                            EventTitleBox(event: events[0])
+                            EventBoxView(event: events[0], occurrenceDate: date)
                             Text("+\(events.count - 1) more")
                             
                                 .font(.system(size: 10))
@@ -63,7 +55,7 @@ struct DayCellView: View {
             }
             Spacer()
             if let holiday = holiday {
-                Text("\(softHyphenated(holiday.title ?? ""))")
+                Text(holiday.title?.softHyphenated() ?? "")
                     .font(.system(size: 9))
                     .foregroundColor(.green)
                     .lineLimit(2)                    // allow wrap

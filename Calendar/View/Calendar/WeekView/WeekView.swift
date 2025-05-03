@@ -10,18 +10,14 @@ import SwiftUI
 struct WeekView: View {
     @EnvironmentObject var eventViewModel: EventViewModel
     
-    /// The day the user has currently selected
     let selectedDate: Date
-    /// Which calendar to use for components, week‐of‐year, etc.
     let calendar: Calendar
-    /// Called when the user taps on one of the 7 day cells
     var onDateTap: (Date) -> Void
     
     @State private var showingAddSheet = false
     @State private var dayInfo: DayInfoItem? = nil
     @GestureState private var dragOffset: CGFloat = 0 
     
-    /// “Today”, “Yesterday”, “Tomorrow” or weekday name
     private var headerDate: String {
         if calendar.isDateInToday(selectedDate) {
             return "Today"
@@ -36,7 +32,6 @@ struct WeekView: View {
         }
     }
     
-    /// The 7 dates in the same week as `selectedDate`
     private var weekDates: [Date] {
         guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: selectedDate)
         else { return [] }
@@ -45,7 +40,6 @@ struct WeekView: View {
         }
     }
     
-    /// All events on the selected day
     private var events: [EventItem] {
         eventViewModel.eventsForDay(selectedDate, using: calendar)
     }
@@ -63,16 +57,9 @@ struct WeekView: View {
             }
             .padding(.vertical, 10)
             
-            
             weekStrip
-            
-            
-            
+              
             DayInformationView(date: selectedDate)
-            
-            
-            
-            
             
             EventListView(day: selectedDate)
         }
@@ -108,9 +95,8 @@ struct WeekView: View {
 private extension WeekView {
 
     var weekStrip: some View {
-        let threshold: CGFloat = 80      // swipe distance to trigger change
-
-        // Entire bar slides horizontally by dragOffset while user drags
+        
+        let threshold: CGFloat = 80
         return HStack(spacing: 12) {
             ForEach(weekDates, id: \.self) { date in
                 let isSelected = calendar.isDate(date, inSameDayAs: selectedDate)
@@ -148,36 +134,34 @@ private extension WeekView {
             }
         }
         .padding(.bottom, 10)
-        .offset(x: dragOffset)                          // ← live follow
+        .offset(x: dragOffset)
         .animation(.interactiveSpring(), value: dragOffset)
-        .contentShape(Rectangle())                      // touch anywhere
+        .contentShape(Rectangle())
         .gesture(
             DragGesture()
-                // update dragOffset continuously
+       
                 .updating($dragOffset) { value, state, _ in
                     state = value.translation.width
                 }
-                // decide where to land
+            
                 .onEnded { value in
                     let dx = value.translation.width
                     if dx < -threshold {
-                        // swipe-left → next week
+                       
                         if let next = calendar.date(byAdding: .weekOfYear,
                                                     value: 1,
                                                     to: selectedDate) {
                             withAnimation(.spring()) { onDateTap(next) }
                         }
                     } else if dx > threshold {
-                        // swipe-right → previous week
+                      
                         if let prev = calendar.date(byAdding: .weekOfYear,
                                                     value: -1,
                                                     to: selectedDate) {
                             withAnimation(.spring()) { onDateTap(prev) }
                         }
                     }
-                    // No extra work needed to “snap back” if under threshold:
-                    // dragOffset animates back to 0 automatically because the
-                    // @GestureState resets when the gesture ends.
+                 
                 }
         )
     }

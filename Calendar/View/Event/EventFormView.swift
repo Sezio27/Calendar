@@ -9,31 +9,27 @@
 import SwiftUI
 
 struct EventFormView: View {
-    // MARK: bindings passed in
     @Binding var eventTitle          : String
     @Binding var eventDetails        : String
     @Binding var eventTime           : Date
-    @Binding var endTime             : Date?          // optional binding
+    @Binding var endTime             : Date?
     @Binding var chosenColor         : EventColor
     @Binding var chosenRecurrence    : RepeatFrequency
     @Binding var notificationsEnabled: Bool
 
     let sectionTitle: String
 
-    // MARK: derived binding — drives the toggle and picker visibility
     private var hasEndTime: Binding<Bool> {
         Binding<Bool>(
             get: { endTime != nil },
             set: { want in
                 if want {
-                    // when user flips toggle ON and we have no endTime, initialise it
                     if endTime == nil {
                         endTime = Calendar.current.date(byAdding: .hour,
                                                         value: 1,
                                                         to: eventTime)
                     }
                 } else {
-                    // user turned it OFF → clear endTime
                     endTime = nil
                 }
             }
@@ -43,12 +39,10 @@ struct EventFormView: View {
     var body: some View {
         Section(header: Text(sectionTitle)) {
 
-            // title & details
             TextField("Title", text: $eventTitle)
             TextEditor(text: $eventDetails)
                 .frame(height: 100)
 
-            // start time (always)
             DatePicker("Start time",
                        selection: $eventTime,
                        displayedComponents: .hourAndMinute)
@@ -60,13 +54,11 @@ struct EventFormView: View {
                     }
                 }
 
-            // toggle visible only when there is *not* an end time yet
             if !hasEndTime.wrappedValue {
                 Toggle("Add end time", isOn: hasEndTime)
                     .toggleStyle(.switch)
             }
-
-            // picker visible whenever hasEndTime == true
+            
             if hasEndTime.wrappedValue {
                 DatePicker("End time",
                            selection: Binding(
@@ -84,21 +76,18 @@ struct EventFormView: View {
                         }
 
                 Button(role: .destructive) {
-                    hasEndTime.wrappedValue = false   // clears endTime
+                    hasEndTime.wrappedValue = false
                 } label: {
                     Label("Remove end time", systemImage: "trash")
                 }
                 .font(.caption)
             }
 
-            // colour
             Picker("Event Color", selection: $chosenColor) {
                 ForEach(EventColor.allCases, id: \.self) {
                     Text($0.displayName).tag($0)
                 }
             }
-
-            // repeat
             Picker("Repeat", selection: $chosenRecurrence) {
                 ForEach(RepeatFrequency.allCases) {
                     Text($0.displayName).tag($0)
@@ -106,7 +95,6 @@ struct EventFormView: View {
             }
             .pickerStyle(.menu)
 
-            // notifications
             Toggle("Notification", isOn: $notificationsEnabled)
         }
     }

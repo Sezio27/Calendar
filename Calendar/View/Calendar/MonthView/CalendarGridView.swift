@@ -10,38 +10,36 @@ import SwiftUI
 struct CalendarGridView: View {
     @EnvironmentObject var eventViewModel: EventViewModel
 
-    /// The month we’re displaying (should come from ContentView’s `displayedDate`)
     let displayedMonth: Date
     let calendar: Calendar
     let today: Date
 
-    // 1) Build the full 6×7 grid of Dates (including days before & after the month)
+    
         private var allRows: [[Date]] {
             guard let monthInterval = calendar.dateInterval(of: .month, for: displayedMonth) else {
                 return []
             }
             let monthFirst = monthInterval.start
 
-            // How many days to pad before the first?
             let leading = (calendar.component(.weekday, from: monthFirst)
                          - calendar.firstWeekday + 7) % 7
 
-            // Build the array
+       
             var dates: [Date] = []
-            // previous-month tail
+
             for i in (-leading..<0) {
                 if let d = calendar.date(byAdding: .day, value: i, to: monthFirst) {
                     dates.append(d)
                 }
             }
-            // current month
+       
             let monthCount = calendar.range(of: .day, in: .month, for: monthFirst)!.count
             for i in 0..<monthCount {
                 if let d = calendar.date(byAdding: .day, value: i, to: monthFirst) {
                     dates.append(d)
                 }
             }
-            // next-month head to fill 6×7
+            
             let toFill = (6 * 7) - dates.count
             if let last = dates.last {
                 for i in 1...toFill {
@@ -51,13 +49,11 @@ struct CalendarGridView: View {
                 }
             }
 
-            // chunk into weeks
             return stride(from: 0, to: dates.count, by: 7).map {
                 Array(dates[$0..<min($0+7, dates.count)])
             }
         }
 
-        // 2) Filter out any week-row that has *no* date in the displayed month
         private var rows: [[Date]] {
             allRows.filter { week in
                 week.contains {
@@ -77,7 +73,6 @@ struct CalendarGridView: View {
                 ForEach(rows.indices, id: \.self) { row in
                     let week = rows[row]
 
-                    // Week number for this row
                     let weekNum = calendar.component(.weekOfYear, from: week[0])
                     VStack {
                         Text("\(weekNum)")
@@ -90,7 +85,7 @@ struct CalendarGridView: View {
                     .padding(.top, 6)
                     .frame(minHeight: 80)
                    
-                    // Each day cell
+                  
                     ForEach(week, id: \.self) { date in
                         let isInMonth = calendar.isDate(date, equalTo: displayedMonth, toGranularity: .month)
 
@@ -100,7 +95,7 @@ struct CalendarGridView: View {
                                 calendar: calendar,
                                 today: today
                             )
-                            // Dim out-of-month days
+                         
                             .foregroundColor(isInMonth ? .primary : .secondary)
                         }
                     }
@@ -108,6 +103,5 @@ struct CalendarGridView: View {
             }
             .padding(.horizontal, 8)
             
-        
     }
 }

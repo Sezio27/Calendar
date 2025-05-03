@@ -9,7 +9,6 @@ import SwiftUI
 
 struct EditEventView: View {
     @ObservedObject var event: EventItem
-    /// The exact day cell the user tapped
     let occurrenceDate: Date
     
     @Environment(\.dismiss) var dismiss
@@ -35,15 +34,6 @@ struct EditEventView: View {
             _chosenRecurrence      = State(initialValue: event.recurrence)
         _notificationsEnabled       = State(initialValue: event.notificationsEnabled)
         }
-    
-    /// Only show the “split vs series” prompt if this is a true future occurrence of a repeating event.
-    private var shouldOfferSplit: Bool {
-        guard let start = event.eventDate,
-              event.recurrence != .none else {
-            return false
-        }
-        return !Calendar.current.isDate(start, inSameDayAs: occurrenceDate)
-    }
     
     @State private var showSplitDialog = false
     @State private var showDeleteDialog = false
@@ -83,7 +73,7 @@ struct EditEventView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
-                        if shouldOfferSplit {
+                        if event.shouldOfferSplit {
                             showSplitDialog = true
                         } else {
                             saveEntireSeries()
@@ -108,30 +98,15 @@ struct EditEventView: View {
                 isPresented: $showDeleteDialog,
                 titleVisibility: .visible
             ) {
-                // If this is a future occurrence of a repeating item
-                if shouldOfferSplit {
-                    Button("Only This Occurrence", role: .destructive) {
-                        eventViewModel.deleteOccurrence(
-                            event: event,
-                            on: occurrenceDate
-                        )
-                        dismiss()
-                    }
-                    Button("Entire Series", role: .destructive) {
-                        eventViewModel.deleteEvent(event: event)
-                        dismiss()
-                    }
-                } else {
-                    // Not a future occurrence (one‐off or start date)
-                    Button("Delete Event", role: .destructive) {
-                        eventViewModel.deleteEvent(event: event)
-                        dismiss()
-                    }
-                }
-                Button("Cancel", role: .cancel) { }
+                DeleteEventDialogView(
+                    event: event,
+                    occurrenceDate: occurrenceDate,
+                    eventViewModel: eventViewModel,
+                    onDeleted: { dismiss() },
+                    onCancel: { showDeleteDialog = false }
+                )
             }
             .onAppear {
-                // populate the form with existing data
                 eventTitle           = event.title ?? ""
                 eventDetails         = event.details ?? ""
                 eventTime            = event.eventDate ?? occurrenceDate
@@ -142,15 +117,17 @@ struct EditEventView: View {
         }
     }
     
-    // MARK: - Actions
-    
-    /// Update every occurrence (the whole series)
     private func saveEntireSeries() {
-        let combined = combine(day: occurrenceDate, time: eventTime)
+        // Take the current master start date's day
+           let originalStartDate = event.eventDate ?? occurrenceDate
+
+           // Replace its hour/minute with the new selected time
+           let newStart = combine(day: originalStartDate, time: eventTime)
+        
         eventViewModel.updateEvent(
             event:                event,
             title:                eventTitle.isEmpty ? "Untitled Event" : eventTitle,
-            date:                 combined,
+            time:                 newStart,
             endTime:              endTime,
             details:              eventDetails,
             color:                chosenColor,
@@ -160,13 +137,12 @@ struct EditEventView: View {
         dismiss()
     }
     
-    /// Split the series: only this one occurrence gets the new settings
     private func saveSingleOccurrence() {
         let combined = combine(day: occurrenceDate, time: eventTime)
         eventViewModel.splitEvent(
             original:               event,
             occurrenceDate:         combined,
-            newRecurrence:          chosenRecurrence,
+          
             notificationsEnabled:   notificationsEnabled,
             newTitle:               eventTitle.isEmpty ? "Untitled Event" : eventTitle,
             newDetails:             eventDetails,

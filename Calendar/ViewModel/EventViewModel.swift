@@ -58,15 +58,16 @@ class EventViewModel: ObservableObject {
         }
     }
     
-    func updateEvent(event: EventItem, title: String, date: Date, endTime: Date?, details: String, color: EventColor, recurrence: RepeatFrequency, notificationsEnabled: Bool) {
+    func updateEvent(event: EventItem, title: String, time: Date, endTime: Date?, details: String, color: EventColor, recurrence: RepeatFrequency, notificationsEnabled: Bool) {
         event.title = title
-        event.eventDate = date
+        event.eventDate = time
         event.endTime = endTime
         event.details = details
         event.eventColor = color
         event.recurrence  = recurrence
         event.notificationsEnabled = notificationsEnabled
-        
+        event.exceptionDates = nil
+        event.repeatEndDate = nil
         objectWillChange.send()
         saveContext()
         fetchEvents()
@@ -83,7 +84,6 @@ class EventViewModel: ObservableObject {
     func splitEvent(
         original event: EventItem,
         occurrenceDate: Date,
-        newRecurrence: RepeatFrequency,
         notificationsEnabled: Bool,
         newTitle: String,
         newDetails: String,
@@ -91,49 +91,51 @@ class EventViewModel: ObservableObject {
         newEndTime: Date?
     ) {
         let calendar = Calendar.current
-        
-        // 1) Truncate old series *the day before* this occurrence,
-        //    so the old series no longer generates the occurrence itself or any after.
-        if let dayBefore = calendar.date(
-            byAdding: .day,
-            value: -1,
-            to: occurrenceDate
-        ) {
-            event.repeatEndDate = dayBefore
-        } else {
-            // fallback safety
-            event.repeatEndDate = occurrenceDate
+
+        // If the event has no recurrence → update directly.
+        if event.recurrence == .none {
+            event.title = newTitle
+            event.details = newDetails
+            event.eventDate = occurrenceDate
+            event.endTime = newEndTime
+            event.eventColor = newColor
+            event.notificationsEnabled = notificationsEnabled
+
+            objectWillChange.send()
+            saveContext()
+            fetchEvents()
+            return
         }
-        
-        // 2) Save & reschedule the original series (only up to that truncated date)
-        saveContext()
-        if let id = event.id?.uuidString {
-            notifications.removePendingNotification(identifier: id)
-            scheduleNotification(for: event)   // will only fire up through dayBefore
+
+        // ✅ IMPORTANT: Don't change the original series unless required.
+        // Instead, add this occurrence as an exception date:
+        var exceptions = (event.exceptionDates as? [Date]) ?? []
+        if !exceptions.contains(where: { Calendar.current.isDate($0, inSameDayAs: occurrenceDate) }) {
+            exceptions.append(occurrenceDate)
+            event.exceptionDates = exceptions as NSObject?
         }
-        
-        // 3) Create a new EventItem for this occurrence
+
+        // ✅ Create a new, independent event for this date.
         let clone = EventItem(context: viewContext)
-        clone.id                   = UUID()
-        clone.title                = newTitle
-        clone.details              = newDetails
-        clone.eventDate            = occurrenceDate
-        clone.endTime           = newEndTime
-        clone.eventColor           = newColor
-        clone.recurrence           = newRecurrence
+        clone.id = UUID()
+        clone.title = newTitle
+        clone.details = newDetails
+        clone.eventDate = occurrenceDate
+        clone.endTime = newEndTime
+        clone.eventColor = newColor
+        clone.recurrence = .none
         clone.notificationsEnabled = notificationsEnabled
-        // recurrenceEndDate = nil by default
-        
-        // 4) Save & schedule the new series/one-off
+
         saveContext()
         fetchEvents()
+
         if notificationsEnabled {
             scheduleNotification(for: clone)
         }
     }
+
     
     func deleteOccurrence(event: EventItem, on day: Date) {
-        // 1) Cast the raw transformable back to [Date]
         var exceptions = (event.exceptionDates as? [Date]) ?? []
         exceptions.append(day)
         event.exceptionDates = exceptions as NSObject?
@@ -152,6 +154,17 @@ class EventViewModel: ObservableObject {
         }
         
         viewContext.delete(event)
+        saveContext()
+        fetchEvents()
+    }
+    
+    func deleteAllEvents() {
+        for event in events {
+            if let id = event.id?.uuidString {
+                notifications.removePendingNotification(identifier: id)
+            }
+            viewContext.delete(event)
+        }
         saveContext()
         fetchEvents()
     }
@@ -198,7 +211,6 @@ class EventViewModel: ObservableObject {
             repeats:        repeats
         )
         
-        // 2. Schedule on the next run loop after saveContext()
         Task {
             await notifications.schedule(localNotification: localNotification)
         }

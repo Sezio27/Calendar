@@ -12,15 +12,12 @@ struct WeekdayHeaderView: View {
     
     var body: some View {
         HStack {
-            // Week number label
+            
             Text("Wk")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .frame(width: 24)
                 
-                
-            
-            // Weekday labels
             ForEach(weekDays, id: \.self) { day in
                 Text(day)
                     .frame(maxWidth: .infinity)
