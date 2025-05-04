@@ -29,13 +29,13 @@ extension EventItem {
         
         guard let start = eventDate else { return false }
 
-            // 0) If we have an end date, and `day` is strictly after it, skip:
+            // if we have an end date, and day is strictly after it, skip
             if let end = repeatEndDate,
                calendar.compare(day, to: end, toGranularity: .day) == .orderedDescending {
               return false
             }
 
-            // 1) If `day` is before start, skip
+            // if day is before start, skip
             let cmp = calendar.compare(day, to: start, toGranularity: .day)
             guard cmp != .orderedAscending else { return false }
 

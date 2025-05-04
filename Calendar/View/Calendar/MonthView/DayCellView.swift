@@ -42,9 +42,9 @@ struct DayCellView: View {
                                 .font(.system(size: 10))
                                       .foregroundColor(.secondary)
                                       .padding(.top, 2)
-                                      .lineLimit(1)             // force a single line
-                                      .truncationMode(.tail)    // if it overflows
-                                      .minimumScaleFactor(0.6)  // optional: shrink text to fit
+                                      .lineLimit(1)
+                                      .truncationMode(.tail)
+                                      .minimumScaleFactor(0.6)
                         }
                     
                     }
@@ -54,7 +54,7 @@ struct DayCellView: View {
                 Text(holiday.title?.softHyphenated() ?? "")
                     .font(.system(size: 9))
                     .foregroundColor(.green)
-                    .lineLimit(2)                    // allow wrap
+                    .lineLimit(2)
                     .minimumScaleFactor(0.7)
                     .padding(.top, 2)
             }
@@ -64,10 +64,10 @@ struct DayCellView: View {
         .padding(4)
         .frame(minHeight: 80, alignment: .top)
         .frame(maxWidth: .infinity)
-        .overlay(alignment: .leading) {                    // pin overlay to the left edge
+        .overlay(alignment: .leading) {
             Rectangle()
                 .fill(.green.opacity(holiday == nil ? 0 : 0.4))
-                .frame(width: 2)                           // thickness of the bar
+                .frame(width: 2)
         }
         .task(id: date) {
                     holiday = await eventViewModel.holidayForDay(date)

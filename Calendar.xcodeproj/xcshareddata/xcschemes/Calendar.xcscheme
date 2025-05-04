@@ -36,8 +36,7 @@
       </TestPlans>
       <Testables>
          <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
+            skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "36657CA42DC67BC900E86A10"
@@ -45,20 +44,9 @@
                BlueprintName = "CalendarTests"
                ReferencedContainer = "container:Calendar.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "CalendarTests">
-               </Test>
-               <Test
-                  Identifier = "CalendarTests/testExample()">
-               </Test>
-               <Test
-                  Identifier = "CalendarTests/testPerformanceExample()">
-               </Test>
-            </SkippedTests>
          </TestableReference>
          <TestableReference
-            skipped = "NO"
+            skipped = "YES"
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"

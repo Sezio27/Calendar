@@ -5,21 +5,12 @@
 //  Created by Jakob Jacobsen on 5/3/25.
 //
 
-//
-//  EventItemTests.swift
-//  Calendar
-//
-//  Updated 4 May 2025 – tests only public API after removal of `effectiveEndTime`
-//
-
 import XCTest
 import CoreData
 @testable import Calendar
 
 final class EventItemTests: XCTestCase {
-
-    // MARK: – Helpers
-    /// Convenience builder for an `EventItem`.
+    //helper
     private func makeEvent(on start: Date,
                            end: Date? = nil,
                            frequency: RepeatFrequency = .weekly) -> EventItem {

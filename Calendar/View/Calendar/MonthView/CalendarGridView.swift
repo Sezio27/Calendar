@@ -93,8 +93,8 @@ struct CalendarGridView: View {
                                 calendar: calendar,
                                 today: today
                             )
-                         
                             .foregroundColor(isInMonth ? .primary : .secondary)
+                            .accessibilityIdentifier("monthDate_" + date.formatted(.dateTime.year().month().day()))
                         }
                     }
                 }

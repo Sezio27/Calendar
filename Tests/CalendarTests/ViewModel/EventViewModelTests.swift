@@ -9,7 +9,6 @@ import XCTest
 import CoreData
 @testable import Calendar
 
-/// Stub for capturing notification scheduling/removals
 final class StubNotificationCenter: NotificationCenterProtocol {
     var scheduledIDs: [String] = []
     var removedIDs: [String] = []
@@ -23,7 +22,6 @@ final class StubNotificationCenter: NotificationCenterProtocol {
     }
 }
 
-/// NotificationManager subclass that uses our stub
 final class StubNotificationManager: NotificationManager {
     private let centerStub: StubNotificationCenter
     
@@ -54,9 +52,8 @@ final class EventViewModelTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        // fresh in-memory context per test
+        
         ctx = NSManagedObjectContext.test
-        // clear any leftover EventItems
         let delete = NSBatchDeleteRequest(fetchRequest: EventItem.fetchRequest())
         _ = try? ctx.execute(delete)
         ctx.reset()

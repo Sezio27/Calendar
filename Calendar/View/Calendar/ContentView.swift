@@ -80,7 +80,7 @@ struct ContentView: View {
                         .foregroundColor(.red)
                         .font(.caption2)
                         .padding()
-                }
+                }.accessibilityIdentifier("deleteAllEventsButton")
             }
             
             .navigationDestination(for: Date.self) { date in

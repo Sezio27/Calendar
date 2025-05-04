@@ -34,7 +34,6 @@
 		36657CC12DC67C5600E86A10 /* Exceptions for "Tests" folder in "Calendar" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				CalendarTests/CalendarTests.swift,
 				CalendarTests/Model/DateFormattingTests.swift,
 				CalendarTests/Model/EventItemTests.swift,
 				CalendarTests/Model/RepeatFrequencyTests.swift,
@@ -45,14 +44,12 @@
 				CalendarTests/Support/TestCoreData.swift,
 				CalendarTests/ViewModel/EventViewModelTests.swift,
 				CalendarUITests/CalendarUITests.swift,
-				CalendarUITests/CalendarUITestsLaunchTests.swift,
 			);
 			target = 36BBC3622D934B9C0010C227 /* Calendar */;
 		};
 		36657CC22DC67C5600E86A10 /* Exceptions for "Tests" folder in "CalendarTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				CalendarTests/CalendarTests.swift,
 				CalendarTests/Model/DateFormattingTests.swift,
 				CalendarTests/Model/EventItemTests.swift,
 				CalendarTests/Model/RepeatFrequencyTests.swift,
@@ -69,7 +66,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				CalendarUITests/CalendarUITests.swift,
-				CalendarUITests/CalendarUITestsLaunchTests.swift,
 			);
 			target = 36657CB12DC67C4B00E86A10 /* CalendarUITests */;
 		};

@@ -23,24 +23,25 @@ struct CalendarHeaderView: View {
                 Image(systemName: isMonthView ? "list.bullet" : "calendar")
                     .font(.title2)
             }
+            .accessibilityIdentifier("toggleViewModeButton")
             .fixedSize()
             
             HStack {
                 Button(action: onPrevious) {
                     Image(systemName: "chevron.left")
                         .font(.title3)
-                }
+                }.accessibilityIdentifier("prevMonthButton")
                 
                 Button(action: onSelectDate) {
                     Text(displayedDate.monthYearString())
                         .font(.title2)
                         .fontWeight(.bold)
-                }
+                }.accessibilityIdentifier("monthPickerButton")
                 
                 Button(action: onNext) {
                     Image(systemName: "chevron.right")
                         .font(.title3)
-                }
+                }.accessibilityIdentifier("nextMonthButton")
             } .frame(maxWidth: .infinity,alignment: .center)
 
         
@@ -50,7 +51,7 @@ struct CalendarHeaderView: View {
             } label: {
                 Image(systemName: "gearshape")
                     .font(.title2)
-            }
+            }.accessibilityIdentifier("settingsButton")
             .fixedSize()
         }
         .padding(.horizontal)

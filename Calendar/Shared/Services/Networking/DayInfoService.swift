@@ -51,7 +51,7 @@ actor DayInfoService {
 
     private func fetchRemote(_ day: Date) async throws -> DayInfoDTO {
         let fmt = DateFormatter()
-        fmt.dateFormat = "dd-MM-yyyy"            // “01-01-2025”
+        fmt.dateFormat = "dd-MM-yyyy"
         let url = URL(string: base + fmt.string(from: day))!
 
         let (data, _) = try await URLSession.shared.data(from: url)
@@ -67,7 +67,6 @@ actor DayInfoService {
         item.sunrise  = dto.astronomy.sunrise
         item.sunset   = dto.astronomy.sunset
         if let span = dto.weather.summary.first(where: { $0.parameter == "Temperatur" }) {
-            // "5-9" or "7.0 °C" → take the range part
             let comps = span.summaryValue.split(separator: "-")
             if comps.count == 2 {
                 item.tempMin = Double(comps[0].replacingOccurrences(of: ",", with: ".")) ?? 0

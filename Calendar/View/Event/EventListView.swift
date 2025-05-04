@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct EventListView: View {
-    /// The day whose events we’re showing
     let day: Date
 
     @EnvironmentObject var eventViewModel: EventViewModel
@@ -25,13 +24,14 @@ struct EventListView: View {
                 List {
                     ForEach(eventsForDay, id: \.objectID) { event in
                         EventRowView(selectedEvent: $selectedEvent, event: event, occurrenceDate: day)
+                            .accessibilityIdentifier("eventRow_\(event.id!.uuidString)")
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
                                     eventToDelete    = event
                                     showDeleteDialog = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
-                                }
+                                }.accessibilityIdentifier("deleteEventRowButton")
                             }
                     }
                     .onDelete { idxs in
@@ -51,7 +51,7 @@ struct EventListView: View {
                     Image(systemName: "plus.circle.fill")
                     Text("Add Event")
                 }
-            }
+            }.accessibilityIdentifier("addEventButton")
             .padding()
             Spacer()
         }

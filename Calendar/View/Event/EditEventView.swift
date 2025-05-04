@@ -63,13 +63,13 @@ struct EditEventView: View {
                             Spacer()
                         }
                         .foregroundColor(.red)
-                    }
+                    }.accessibilityIdentifier("deleteEventButton")
                 }
             }
             .navigationTitle("Edit Event")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel") { dismiss() }.accessibilityIdentifier("cancelEventButton")
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
@@ -78,7 +78,7 @@ struct EditEventView: View {
                         } else {
                             saveEntireSeries()
                         }
-                    }
+                    }.accessibilityIdentifier("saveEventButton")
                 }
             }
             .confirmationDialog(
@@ -87,11 +87,11 @@ struct EditEventView: View {
             ) {
                 Button("Only This Occurrence") {
                     saveSingleOccurrence()
-                }
+                }.accessibilityIdentifier("saveOccurrenceButton")
                 Button("Entire Series") {
                     saveEntireSeries()
-                }
-                Button("Cancel", role: .cancel) { }
+                }.accessibilityIdentifier("saveSeriesButton")
+                Button("Cancel", role: .cancel) { }.accessibilityIdentifier("cancelSplitButton")
             }
             .confirmationDialog(
                 "Delete this event?",
@@ -118,10 +118,8 @@ struct EditEventView: View {
     }
     
     private func saveEntireSeries() {
-        // Take the current master start date's day
            let originalStartDate = event.eventDate ?? occurrenceDate
 
-           // Replace its hour/minute with the new selected time
            let newStart = combine(day: originalStartDate, time: eventTime)
         
         eventViewModel.updateEvent(

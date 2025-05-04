@@ -40,7 +40,7 @@ struct EventRowView: View {
         .contentShape(Rectangle())
         .onTapGesture {
             selectedEvent = event
-        }
+        }.accessibilityIdentifier("eventRow_\(event.id!.uuidString)")
         .padding(.vertical, 8)
     }
 }

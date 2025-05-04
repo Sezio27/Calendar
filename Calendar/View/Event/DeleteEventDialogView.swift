@@ -22,18 +22,18 @@ struct DeleteEventDialogView: View {
                 Button("Only This Occurrence", role: .destructive) {
                     eventViewModel.deleteOccurrence(event: event, on: occurrenceDate)
                     onDeleted()
-                }
+                }.accessibilityIdentifier("deleteOccurrenceButton")
                 Button("Entire Series", role: .destructive) {
                     eventViewModel.deleteEvent(event: event)
                     onDeleted()
-                }
+                }.accessibilityIdentifier("deleteSeriesButton")
             } else {
                 Button("Delete Event", role: .destructive) {
                     eventViewModel.deleteEvent(event: event)
                     onDeleted()
-                }
+                }.accessibilityIdentifier("deleteSingleButton")
             }
-            Button("Cancel", role: .cancel) { onCancel() }
+            Button("Cancel", role: .cancel) { onCancel() }.accessibilityIdentifier("cancelDeleteButton")
         }
     }
 }

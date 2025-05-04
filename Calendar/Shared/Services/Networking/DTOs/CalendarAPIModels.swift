@@ -10,32 +10,32 @@ struct YearResponse: Decodable {
 }
 
 struct DayDTO: Decodable {
-    let date: String                // "2025-01-01"
+    let date: String                
     let events: [EventDTO]
 }
 
 struct EventDTO: Decodable {
     let danishShort: String
-    let holliday   : Bool           // sic: API spelling
+    let holliday   : Bool
 }
 
 struct DayInfoDTO: Decodable {
-    let date: String                 // "2025-01-01"  (we keep it as String)
+    let date: String
     let astronomy: AstronomyDTO
     let weather:   WeatherDTO
 }
 
 struct AstronomyDTO: Decodable {
-    let sunrise: String              // "08:40"
-    let sunset:  String              // "15:48"
+    let sunrise: String
+    let sunset:  String
 }
 
 struct WeatherDTO: Decodable {
-    let summary: [WeatherSummaryDTO] // array with "Temperatur" item
+    let summary: [WeatherSummaryDTO]
 }
 
 struct WeatherSummaryDTO: Decodable {
-    let parameter:     String        // e.g. "Temperatur"
-    let summaryValue:  String        // "5-9"  (min-max as a string)
-    // we ignore summaryAverage & order for now
+    let parameter:     String
+    let summaryValue:  String
+    
 }

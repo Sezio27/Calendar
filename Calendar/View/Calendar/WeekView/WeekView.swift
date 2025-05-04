@@ -115,6 +115,7 @@ private extension WeekView {
                             .frame(width: 2)
                     }
                 }
+                .accessibilityIdentifier("weekDate_" + date.formatted(.dateTime.year().month().day()))
                 .onTapGesture { onDateTap(date) }
             }
         }

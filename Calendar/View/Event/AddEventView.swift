@@ -37,7 +37,7 @@ struct AddEventView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
                         dismiss()
-                    }
+                    }.accessibilityIdentifier("cancelAddButton")
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
@@ -53,7 +53,7 @@ struct AddEventView: View {
                             notificationsEnabled: notificationsEnabled
                         )
                         dismiss()
-                    }
+                    }.accessibilityIdentifier("saveEventButton")
                 }
             }
         }

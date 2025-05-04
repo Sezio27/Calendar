@@ -39,13 +39,15 @@ struct EventFormView: View {
     var body: some View {
         Section(header: Text(sectionTitle)) {
 
-            TextField("Title", text: $eventTitle)
+            TextField("Title", text: $eventTitle).accessibilityIdentifier("eventTitleField")
             TextEditor(text: $eventDetails)
                 .frame(height: 100)
+                .accessibilityIdentifier("eventDetailsField")
 
             DatePicker("Start time",
                        selection: $eventTime,
                        displayedComponents: .hourAndMinute)
+            .accessibilityIdentifier("startTimePicker")
             .onChange(of: eventTime) { _, newStart in
                     if let end = endTime, end <= newStart {
                         endTime = Calendar.current.date(byAdding: .minute,
@@ -56,6 +58,7 @@ struct EventFormView: View {
 
             if !hasEndTime.wrappedValue {
                 Toggle("Add end time", isOn: hasEndTime)
+                    .accessibilityIdentifier("addEndTimeToggle")
                     .toggleStyle(.switch)
             }
             
@@ -67,6 +70,7 @@ struct EventFormView: View {
                            ),
                            displayedComponents: .hourAndMinute)
                     .datePickerStyle(.compact)
+                    .accessibilityIdentifier("endTimePicker")
                     .onChange(of: endTime) { _, newEnd in
                             if let end = newEnd, end <= eventTime {
                                 endTime = Calendar.current.date(byAdding: .minute,
@@ -81,21 +85,25 @@ struct EventFormView: View {
                     Label("Remove end time", systemImage: "trash")
                 }
                 .font(.caption)
+                .accessibilityIdentifier("removeEndTimeButton")
             }
 
             Picker("Event Color", selection: $chosenColor) {
                 ForEach(EventColor.allCases, id: \.self) {
                     Text($0.displayName).tag($0)
                 }
-            }
+            }.accessibilityIdentifier("colorPicker")
+            
             Picker("Repeat", selection: $chosenRecurrence) {
                 ForEach(RepeatFrequency.allCases) {
                     Text($0.displayName).tag($0)
                 }
             }
             .pickerStyle(.menu)
+            .accessibilityIdentifier("recurrencePicker")
 
             Toggle("Notification", isOn: $notificationsEnabled)
+                .accessibilityIdentifier("notificationsToggle")
         }
     }
 }

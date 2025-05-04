@@ -18,6 +18,7 @@ struct MonthYearPickerView: View {
                     .datePickerStyle(WheelDatePickerStyle())
                     .labelsHidden()
                     .padding()
+                    .accessibilityIdentifier("monthYearPicker")
                 Spacer()
             }
             .navigationTitle("Select Month")
@@ -25,7 +26,7 @@ struct MonthYearPickerView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         isPresented = false
-                    }
+                    }.accessibilityIdentifier("doneMonthPickerButton")
                 }
             }
         }
