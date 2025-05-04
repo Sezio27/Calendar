@@ -1,0 +1,42 @@
+{
+  "configurations" : [
+    {
+      "id" : "49B8C746-6046-4CF7-9565-7FC931F46BE5",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Calendar.xcodeproj",
+      "identifier" : "36BBC3622D934B9C0010C227",
+      "name" : "Calendar"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "skippedTests" : [
+        "CalendarTests",
+        "CalendarTests\/testExample()",
+        "CalendarTests\/testPerformanceExample()"
+      ],
+      "target" : {
+        "containerPath" : "container:Calendar.xcodeproj",
+        "identifier" : "36657CA42DC67BC900E86A10",
+        "name" : "CalendarTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Calendar.xcodeproj",
+        "identifier" : "36657CB12DC67C4B00E86A10",
+        "name" : "CalendarUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -11,19 +11,17 @@ import UserNotifications
 import SwiftUI
 
 @MainActor
-class EventViewModel: ObservableObject {
+class EventEditorViewModel: ObservableObject {
     @Published var events: [EventItem] = []
     
     private var viewContext: NSManagedObjectContext
     private let notifications: NotificationManager
     
-    
     init(context: NSManagedObjectContext,
-         notifications: NotificationManager
+         notifications: NotificationManager,
     ) {
         self.viewContext = context
         self.notifications = notifications
-        
         fetchEvents()
     }
     
@@ -36,27 +34,31 @@ class EventViewModel: ObservableObject {
             print("Error fetching events: \(error)")
         }
     }
-    func eventsForDay(_ day: Date, using calendar: Calendar = .current) -> [EventItem] {
-        events.filter { $0.occurs(on: day, using: calendar) }
-    }
     
-    func addEvent(title: String, date: Date, endTime: Date?, details: String, color: EventColor, recurrence: RepeatFrequency, notificationsEnabled: Bool) {
-        let newEvent = EventItem(context: viewContext)
-        newEvent.id = UUID()
-        newEvent.title = title
-        newEvent.eventDate = date
-        newEvent.endTime = endTime
-        newEvent.details = details
-        newEvent.eventColor = color
-        newEvent.recurrence  = recurrence
-        newEvent.notificationsEnabled = notificationsEnabled
-        saveContext()
-        fetchEvents()
-        
-        if notificationsEnabled {
-            scheduleNotification(for: newEvent)
+    func addEvent(
+            title: String,
+            date: Date,
+            endTime: Date?,
+            details: String,
+            color: EventColor,
+            recurrence: RepeatFrequency,
+            notificationsEnabled: Bool
+        ) {
+            let e = EventItem(context: viewContext)
+            e.id                   = UUID()
+            e.title                = title
+            e.eventDate            = date
+            e.endTime              = endTime
+            e.details              = details
+            e.eventColor           = color
+            e.recurrence           = recurrence
+            e.notificationsEnabled = notificationsEnabled
+
+            saveContext()
+            if notificationsEnabled {
+                Task { await notifications.scheduleNotification(event: e) }
+                    }
         }
-    }
     
     func updateEvent(event: EventItem, title: String, time: Date, endTime: Date?, details: String, color: EventColor, recurrence: RepeatFrequency, notificationsEnabled: Bool) {
         event.title = title
@@ -75,8 +77,8 @@ class EventViewModel: ObservableObject {
         if let id = event.id?.uuidString {
             notifications.removePendingNotification(identifier: id)
             if notificationsEnabled {
-                scheduleNotification(for: event)
-            }
+                Task { await notifications.scheduleNotification(event: event) }
+                    }
         }
     }
     
@@ -92,7 +94,6 @@ class EventViewModel: ObservableObject {
     ) {
         let calendar = Calendar.current
 
-        // If the event has no recurrence → update directly.
         if event.recurrence == .none {
             event.title = newTitle
             event.details = newDetails
@@ -107,15 +108,12 @@ class EventViewModel: ObservableObject {
             return
         }
 
-        // ✅ IMPORTANT: Don't change the original series unless required.
-        // Instead, add this occurrence as an exception date:
         var exceptions = (event.exceptionDates as? [Date]) ?? []
         if !exceptions.contains(where: { Calendar.current.isDate($0, inSameDayAs: occurrenceDate) }) {
             exceptions.append(occurrenceDate)
             event.exceptionDates = exceptions as NSObject?
         }
 
-        // ✅ Create a new, independent event for this date.
         let clone = EventItem(context: viewContext)
         clone.id = UUID()
         clone.title = newTitle
@@ -130,8 +128,8 @@ class EventViewModel: ObservableObject {
         fetchEvents()
 
         if notificationsEnabled {
-            scheduleNotification(for: clone)
-        }
+            Task { await notifications.scheduleNotification(event: clone) }
+                }
     }
 
     
@@ -169,16 +167,6 @@ class EventViewModel: ObservableObject {
         fetchEvents()
     }
     
-    func holidayForDay(_ day: Date, using cal: Calendar = .current) -> HolidayItem? {
-        let req: NSFetchRequest<HolidayItem> = HolidayItem.fetchRequest()
-        req.fetchLimit = 1
-        req.predicate = NSPredicate(
-            format: "date >= %@ AND date < %@",
-            cal.startOfDay(for: day) as CVarArg,
-            cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: day))! as CVarArg
-        )
-        return (try? viewContext.fetch(req))?.first
-    }
     
     private func saveContext() {
         do {
@@ -188,70 +176,5 @@ class EventViewModel: ObservableObject {
         }
     }
     
-    private func scheduleNotification(for event: EventItem) {
-        guard
-            let id        = event.id?.uuidString,
-            let date      = event.eventDate,
-            event.notificationsEnabled
-        else {
-            return
-        }
-        
-        
-        let (components, repeats) = makeTriggerComponents(
-            for: date,
-            frequency: event.recurrence
-        )
-        
-        let localNotification = LocalNotification(
-            identifier:     id,
-            title:          event.title ?? "Event Reminder",
-            body:           event.details ?? "",
-            dateComponents: components,
-            repeats:        repeats
-        )
-        
-        Task {
-            await notifications.schedule(localNotification: localNotification)
-        }
-    }
-    
-    private func makeTriggerComponents(
-        for date: Date,
-        frequency: RepeatFrequency
-    ) -> (DateComponents, Bool) {
-        switch frequency {
-        case .none:
-            let comps = Calendar.current.dateComponents(
-                [.year, .month, .day, .hour, .minute],
-                from: date
-            )
-            return (comps, false)
-        case .daily:
-            let comps = Calendar.current.dateComponents(
-                [.hour, .minute],
-                from: date
-            )
-            return (comps, true)
-        case .weekly:
-            let comps = Calendar.current.dateComponents(
-                [.weekday, .hour, .minute],
-                from: date
-            )
-            return (comps, true)
-        case .monthly:
-            let comps = Calendar.current.dateComponents(
-                [.day, .hour, .minute],
-                from: date
-            )
-            return (comps, true)
-        case .yearly:
-            let comps = Calendar.current.dateComponents(
-                [.month, .day, .hour, .minute],
-                from: date
-            )
-            return (comps, true)
-        }
-    }
 }
 
