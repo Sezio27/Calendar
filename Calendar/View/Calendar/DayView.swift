@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DayView: View {
     let day: Date
+    @EnvironmentObject private var eventViewModel: EventViewModel
     @State private var dayInfo: DayInfoItem? = nil
 
     var body: some View {
@@ -18,7 +19,7 @@ struct DayView: View {
         }
         .navigationTitle("\(day.formatted(date: .long, time: .omitted))")
         .task {
-            dayInfo = await DayInfoService.shared.info(for: day)
+            dayInfo = await eventViewModel.dayInfoForDate(day)
         }
     }
 }

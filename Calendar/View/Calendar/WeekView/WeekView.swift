@@ -16,7 +16,8 @@ struct WeekView: View {
     
     @State private var showingAddSheet = false
     @State private var dayInfo: DayInfoItem? = nil
-    @GestureState private var dragOffset: CGFloat = 0 
+    @State private var holiday: HolidayItem? = nil
+    @GestureState private var dragOffset: CGFloat = 0
     
     private var headerDate: String {
         if calendar.isDateInToday(selectedDate) {
@@ -44,10 +45,6 @@ struct WeekView: View {
         eventViewModel.eventsForDay(selectedDate, using: calendar)
     }
     
-    private func holiday(for day: Date) -> HolidayItem? {
-        eventViewModel.holidayForDay(day, using: calendar)
-    }
-    
     var body: some View {
         VStack() {
             
@@ -65,31 +62,19 @@ struct WeekView: View {
         }
         .padding(.horizontal)
         .task(id: Calendar.current.startOfDay(for: selectedDate)) {
-            dayInfo = await DayInfoService.shared.info(for: selectedDate)
+            async let info  = eventViewModel.dayInfoForDate(selectedDate)
+            async let hol   = eventViewModel.holidayForDay(selectedDate)
+                      
+            dayInfo = await info
+            holiday = await hol
+
         }
         .sheet(isPresented: $showingAddSheet) {
             AddEventView(day: selectedDate)
                 .environmentObject(eventViewModel)
         }
     }
-    
-    
-    
-    private func delete(at offsets: IndexSet) {
-        let toDelete = offsets.compactMap { idx in
-            events.indices.contains(idx) ? events[idx] : nil
-        }
-        for event in toDelete {
-            eventViewModel.deleteEvent(event: event)
-        }
-    }
-    
-    private func softHyphenated(_ text: String, breakAfter firstN: Int = 8) -> String {
-        guard text.count > firstN else { return text }
-        var chars = Array(text)
-        chars.insert("\u{00AD}", at: min(firstN, chars.count - 3))
-        return String(chars)
-    }
+
 }
 
 private extension WeekView {
@@ -98,7 +83,7 @@ private extension WeekView {
         
         let threshold: CGFloat = 80
         return HStack(spacing: 12) {
-            ForEach(weekDates, id: \.self) { date in
+            ForEach(weekDates, id: \.self) { (date: Date) in
                 let isSelected = calendar.isDate(date, inSameDayAs: selectedDate)
 
                 VStack(spacing: 4) {
@@ -124,7 +109,7 @@ private extension WeekView {
                 }
                 .frame(maxWidth: .infinity)
                 .overlay(alignment: .leading) {
-                    if holiday(for: date) != nil {
+                    if holiday != nil {
                         Rectangle()
                             .fill(Color.green.opacity(0.4))
                             .frame(width: 2)

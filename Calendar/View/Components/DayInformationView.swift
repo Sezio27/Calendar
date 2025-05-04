@@ -13,16 +13,13 @@ import SwiftUI
 struct DayInformationView: View {
     let date: Date
     var calendar: Calendar = .current
-
+    
     @EnvironmentObject private var eventViewModel: EventViewModel
-    @State            private var dayInfo: DayInfoItem? = nil
-
-    private func holiday(for day: Date) -> HolidayItem? {
-        eventViewModel.holidayForDay(day, using: calendar)
-    }
+    @State             private var dayInfo: DayInfoItem? = nil
+    @State             private var holiday: HolidayItem? = nil
     
     var body: some View {
-        Group {
+        VStack {
             Divider()
                 .padding(.horizontal)
             VStack(spacing: 6) {
@@ -38,7 +35,7 @@ struct DayInformationView: View {
                     }
                 }
                 
-                if let h = holiday(for: date) {
+                if let h = holiday {
                     Text(h.title ?? "")
                         .font(.subheadline)
                         .foregroundColor(.green)
@@ -51,9 +48,12 @@ struct DayInformationView: View {
                 .padding(.horizontal)
         }
         .padding(.vertical, 6)
-        .task(id: Calendar.current.startOfDay(for: date)) {
-            // lazy fetch, cached by DayInfoService
-            dayInfo = await DayInfoService.shared.info(for: date)
+        .task(id: date) {
+            async let info  = eventViewModel.dayInfoForDate(date)
+            async let hol   = eventViewModel.holidayForDay(date)
+            
+            dayInfo = await info
+            holiday = await hol
         }
     }
 }

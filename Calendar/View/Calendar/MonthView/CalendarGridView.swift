@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct CalendarGridView: View {
-    @EnvironmentObject var eventViewModel: EventViewModel
-
     let displayedMonth: Date
     let calendar: Calendar
     let today: Date

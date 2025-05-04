@@ -11,19 +11,26 @@ import UserNotifications
 import SwiftUI
 
 @MainActor
-class EventEditorViewModel: ObservableObject {
+class EventViewModel: ObservableObject {
     @Published var events: [EventItem] = []
     
     private var viewContext: NSManagedObjectContext
     private let notifications: NotificationManager
+    private let dayInfoService: DayInfoService
+    private let holidayService: HolidayService
     
     init(context: NSManagedObjectContext,
          notifications: NotificationManager,
+         holidayService: HolidayService = .shared,
+         dayInfoService: DayInfoService = .shared
     ) {
         self.viewContext = context
         self.notifications = notifications
+        self.holidayService = holidayService
+        self.dayInfoService = dayInfoService
         fetchEvents()
     }
+    
     
     func fetchEvents() {
         let request: NSFetchRequest<EventItem> = EventItem.fetchRequest()
@@ -34,6 +41,19 @@ class EventEditorViewModel: ObservableObject {
             print("Error fetching events: \(error)")
         }
     }
+    
+    func eventsForDay(_ day: Date, using calendar: Calendar = .current) -> [EventItem] {
+        events.filter { $0.occurs(on: day, using: calendar) }
+    }
+    
+    func holidayForDay(_ day: Date) async -> HolidayItem? {
+        await holidayService.info(for: day)
+    }
+    
+    func dayInfoForDate(_ date: Date) async -> DayInfoItem? {
+        await dayInfoService.info(for: date)
+    }
+    
     
     func addEvent(
             title: String,
@@ -55,6 +75,7 @@ class EventEditorViewModel: ObservableObject {
             e.notificationsEnabled = notificationsEnabled
 
             saveContext()
+            
             if notificationsEnabled {
                 Task { await notifications.scheduleNotification(event: e) }
                     }
@@ -72,7 +93,6 @@ class EventEditorViewModel: ObservableObject {
         event.repeatEndDate = nil
         objectWillChange.send()
         saveContext()
-        fetchEvents()
         
         if let id = event.id?.uuidString {
             notifications.removePendingNotification(identifier: id)
@@ -104,7 +124,6 @@ class EventEditorViewModel: ObservableObject {
 
             objectWillChange.send()
             saveContext()
-            fetchEvents()
             return
         }
 
@@ -125,7 +144,6 @@ class EventEditorViewModel: ObservableObject {
         clone.notificationsEnabled = notificationsEnabled
 
         saveContext()
-        fetchEvents()
 
         if notificationsEnabled {
             Task { await notifications.scheduleNotification(event: clone) }
@@ -139,7 +157,7 @@ class EventEditorViewModel: ObservableObject {
         event.exceptionDates = exceptions as NSObject?
         
         saveContext()
-        fetchEvents()
+
         if let id = event.id?.uuidString {
             notifications.removePendingNotification(identifier: id)
         }
@@ -153,7 +171,7 @@ class EventEditorViewModel: ObservableObject {
         
         viewContext.delete(event)
         saveContext()
-        fetchEvents()
+
     }
     
     func deleteAllEvents() {
@@ -164,13 +182,14 @@ class EventEditorViewModel: ObservableObject {
             viewContext.delete(event)
         }
         saveContext()
-        fetchEvents()
+
     }
     
     
     private func saveContext() {
         do {
             try viewContext.save()
+            fetchEvents()
         } catch {
             print("Error saving context: \(error)")
         }

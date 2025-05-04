@@ -10,11 +10,13 @@ import SwiftUI
 struct EventRowView: View {
     @Binding var selectedEvent: EventItem?
     let event: EventItem
+    let occurrenceDate: Date
     
     var body: some View {
         HStack {
             Circle()
                 .fill(event.eventColor.swiftUIColor)
+                .opacity(event.hasFinished(on: occurrenceDate) ? 0.7 : 1)
                 .frame(width: 20, height: 20)
             VStack(alignment: .leading) {
                 Text(event.title ?? "Untitled")

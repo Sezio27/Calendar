@@ -17,12 +17,6 @@
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
-      "skippedTests" : [
-        "CalendarTests",
-        "CalendarTests\/testExample()",
-        "CalendarTests\/testPerformanceExample()"
-      ],
       "target" : {
         "containerPath" : "container:Calendar.xcodeproj",
         "identifier" : "36657CA42DC67BC900E86A10",
@@ -30,6 +24,7 @@
       }
     },
     {
+      "enabled" : false,
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:Calendar.xcodeproj",

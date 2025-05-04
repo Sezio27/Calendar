@@ -27,9 +27,9 @@ final class CalendarTests: XCTestCase {
 
     func testPerformanceExample() throws {
         // This is an example of a performance test case.
-        measure {
+        //measure {
             // Put the code you want to measure the time of here.
-        }
+       // }
     }
 
 }

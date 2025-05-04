@@ -13,8 +13,7 @@ enum EventColor: String, CaseIterable {
     case green
     case orange
     case purple
-    
-    // Convert this enum case to a SwiftUI Color
+
     var swiftUIColor: Color {
         switch self {
         case .red: return .red
@@ -25,7 +24,6 @@ enum EventColor: String, CaseIterable {
         }
     }
     
-    // Display-friendly name if needed
     var displayName: String {
         rawValue.capitalized
     }

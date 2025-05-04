@@ -11,19 +11,22 @@ import CoreData
 actor DayInfoService {
     static let shared = DayInfoService()
 
-    private let ctx = PersistenceController.shared.container.viewContext
+    private let ctx: NSManagedObjectContext
     private let base = "https://api.kalendarium.dk/Dayinfo/"
 
-    // main entry-point
+    init(context: NSManagedObjectContext =
+           PersistenceController.shared.container.viewContext) {
+      self.ctx = context
+    }
+    
     func info(for date: Date) async -> DayInfoItem? {
         if let cached = try? cachedItem(for: date) {
             return cached
         }
 
-        // API contains data only up to "today"
         guard Calendar.current.isDate(date, inSameDayAs: Date())
            || date < Date()
-        else { return nil }                      // future → no call
+        else { return nil }
 
         do {
             let dto   = try await fetchRemote(date)
@@ -34,7 +37,6 @@ actor DayInfoService {
         }
     }
 
-    // ----------------------------------------------------------------
     private func cachedItem(for day: Date) throws -> DayInfoItem? {
         let start = Calendar.current.startOfDay(for: day)
         let end   = Calendar.current.date(byAdding: .day, value: 1, to: start)!

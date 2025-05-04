@@ -12,12 +12,8 @@ struct DayCellView: View {
     let calendar: Calendar
     let today: Date
     
-    // Inject the shared EventViewModel from the environment
     @EnvironmentObject var eventViewModel: EventViewModel
-  
-    private var holiday: HolidayItem? {
-            eventViewModel.holidayForDay(date, using: calendar)
-        }
+    @State private var holiday: HolidayItem?
     
     var events: [EventItem] {
         eventViewModel.eventsForDay(date, using: calendar)
@@ -73,6 +69,9 @@ struct DayCellView: View {
                 .fill(.green.opacity(holiday == nil ? 0 : 0.4))
                 .frame(width: 2)                           // thickness of the bar
         }
+        .task(id: date) {
+                    holiday = await eventViewModel.holidayForDay(date)
+                }
         
     }
 }

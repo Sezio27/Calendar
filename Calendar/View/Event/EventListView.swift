@@ -5,7 +5,7 @@ struct EventListView: View {
     let day: Date
 
     @EnvironmentObject var eventViewModel: EventViewModel
-
+    
     @State private var showingAddSheet   = false
     @State private var selectedEvent     : EventItem? = nil
     @State private var eventToDelete     : EventItem?
@@ -24,7 +24,7 @@ struct EventListView: View {
             } else {
                 List {
                     ForEach(eventsForDay, id: \.objectID) { event in
-                        EventRowView(selectedEvent: $selectedEvent, event: event)
+                        EventRowView(selectedEvent: $selectedEvent, event: event, occurrenceDate: day)
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
                                     eventToDelete    = event
